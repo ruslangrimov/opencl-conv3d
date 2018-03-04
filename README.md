@@ -1,19 +1,19 @@
 # opencl-conv3d
 OpenCL 3d convolution
 
-## Структура проекта
+## РЎС‚СЂСѓРєС‚СѓСЂР° РїСЂРѕРµРєС‚Р°
 
-```naive_conv3d``` - наивная реализация на numpy
+```naive_conv3d``` - РЅР°РёРІРЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ РЅР° numpy
 
-```pyopencl_conv3d``` - реализация на OpenCL
+```pyopencl_conv3d``` - СЂРµР°Р»РёР·Р°С†РёСЏ РЅР° OpenCL
 
-```pyopencl_conv3d/conv3d_v1.cl``` - код OpenCL
+```pyopencl_conv3d/conv3d_v1.cl``` - РєРѕРґ OpenCL
 
-```pyopencl_conv3d/conv3d.py``` - python обёртка над ядрами OpenCL
+```pyopencl_conv3d/conv3d.py``` - python РѕР±С‘СЂС‚РєР° РЅР°Рґ СЏРґСЂР°РјРё OpenCL
 
-```test_conv3d.py``` - тесты для pytest
+```test_conv3d.py``` - С‚РµСЃС‚С‹ РґР»СЏ pytest
 
-## Пример использования
+## РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ
 
 ```python
 import numpy as np
@@ -22,34 +22,34 @@ from naive_conv3d.conv3d import conv3d as n_conv3d
 from pyopencl_conv3d.conv3d import conv3d as cl_conv3d
 from pyopencl_conv3d.conv3d import init as cl_init
 
-# Паддинги по глубине, высоте и ширине
+# РџР°РґРґРёРЅРіРё РїРѕ РіР»СѓР±РёРЅРµ, РІС‹СЃРѕС‚Рµ Рё С€РёСЂРёРЅРµ
 pads = [0, 1, 1]
 
-# Шаги
+# РЁР°РіРё
 strides = [1, 2, 2]
 
-# Размер батча
+# Р Р°Р·РјРµСЂ Р±Р°С‚С‡Р°
 b_size = 4
 
-# Количество каналов
+# РљРѕР»РёС‡РµСЃС‚РІРѕ РєР°РЅР°Р»РѕРІ
 ch = 8
-# Входные данные, 5d тензор (batch_size, channels, depth, height, width)
+# Р’С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, 5d С‚РµРЅР·РѕСЂ (batch_size, channels, depth, height, width)
 x_shape = (b_size, ch, 8, 32, 32)
 x = np.random.random(np.prod(x_shape)).astype(np.float32).reshape(x_shape)
 
-# Количество фильтров
+# РљРѕР»РёС‡РµСЃС‚РІРѕ С„РёР»СЊС‚СЂРѕРІ
 f_count = 16
-# Веса фильтров
+# Р’РµСЃР° С„РёР»СЊС‚СЂРѕРІ
 w_shape = (f_count, ch, 3, 3, 3)
 w = np.random.random(np.prod(w_shape)).astype(np.float32).reshape(w_shape)
 
-# Инициализируем OpenCL платформу и устройство
+# РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј OpenCL РїР»Р°С‚С„РѕСЂРјСѓ Рё СѓСЃС‚СЂРѕР№СЃС‚РІРѕ
 ctx, queue, program = cl_init(0, 0)
 
-# Вычислим свёртку
+# Р’С‹С‡РёСЃР»РёРј СЃРІС‘СЂС‚РєСѓ
 cl_res = cl_conv3d(ctx, queue, program, x, w, pads, strides)
 
-# Проверим сходится ли с наивной реализацией
+# РџСЂРѕРІРµСЂРёРј СЃС…РѕРґРёС‚СЃСЏ Р»Рё СЃ РЅР°РёРІРЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРµР№
 n_res = n_conv3d(x, w, pads, strides)
 
 print("Everything is OK" if np.isclose(n_res, cl_res).all() else "There is an error")
