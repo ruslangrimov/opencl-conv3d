@@ -144,10 +144,15 @@ void m2m(
         for (int k=0; k < ns; k++) {
             //Copy submatrixes to local memory. Each worker copies one element
             unsigned int a_idx = q*(BLOCK_SIZE*g_i + id_i) + BLOCK_SIZE*k+id_j;
-            sub_a[id_i][id_j] = a_idx < p*q ? data_a[a_idx] : 0;
-
             unsigned int b_idx = r*(BLOCK_SIZE*k + id_i) + BLOCK_SIZE*g_j+id_j;
-            sub_b[id_i][id_j] = b_idx < q*r ? data_b[b_idx] : 0;
+
+            if (q%BLOCK_SIZE && k == ns-1) {
+                sub_a[id_i][id_j] = id_j < q%BLOCK_SIZE ? data_a[a_idx] : 0;
+                sub_b[id_i][id_j] = id_i < q%BLOCK_SIZE ? data_b[b_idx] : 0;
+            } else {
+                sub_a[id_i][id_j] = data_a[a_idx];
+                sub_b[id_i][id_j] = data_b[b_idx];
+            }
 
             barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -218,10 +223,15 @@ void m2tm(
         for (int k=0; k < ns; k++) {
             //Copy submatrixes to local memory. Each worker copies one element
             unsigned int a_idx = q*(BLOCK_SIZE*g_i + id_i) + BLOCK_SIZE*k+id_j;
-            sub_a[id_i][id_j] = a_idx < p*q ? data_a[a_idx] : 0;
-
             unsigned int b_idx = BLOCK_SIZE*k + id_i + q*(BLOCK_SIZE*g_j + id_j);
-            sub_b[id_i][id_j] = b_idx < q*r ? data_b[b_idx] : 0;
+
+            if (q%BLOCK_SIZE && k == ns-1) {
+                sub_a[id_i][id_j] = id_j < q%BLOCK_SIZE ? data_a[a_idx] : 0;
+                sub_b[id_i][id_j] = id_i < q%BLOCK_SIZE ? data_b[b_idx] : 0;
+            } else {
+                sub_a[id_i][id_j] = data_a[a_idx];
+                sub_b[id_i][id_j] = data_b[b_idx];
+            }
 
             barrier(CLK_LOCAL_MEM_FENCE);
 
